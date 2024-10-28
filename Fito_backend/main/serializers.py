@@ -90,3 +90,31 @@ class UserLoginSerializer(serializers.Serializer):
         attrs['user'] = user
 
         return attrs
+    
+class TrainerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username', 'profile_img', 'is_tariner', 'password')
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+        user = User(**validated_data)
+        user.is_trainer = True
+        if password:
+            user.set_password
+        user.save()
+        return user
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if attr == "password":
+                instance.set_password(value)
+            else:
+                setattr(instance, attr, value)
+        instance.save()
+        return instance
+    
+class SubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ['id', 'name', 'description', 'price', 'duration', 'created_at', 'updated_at']

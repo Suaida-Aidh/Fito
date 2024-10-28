@@ -1,14 +1,11 @@
 from django.contrib.auth import get_user_model
-from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework import status, generics, permissions
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAdminUser
 from . import serializers
 from .models import *
-from .serializers import  UserLoginSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
@@ -76,3 +73,55 @@ class UserLogin(GenericAPIView):
             "refresh_token": str(refresh_token),
             "is_superuser": user.is_superuser,
         })
+
+
+# SUNSCRIPTION VIEWS
+
+# ADMIN SIDE
+class SubscriptionCreateList(generics.ListCreateAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
+    permission_classes = [IsAdminUser]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            subscription = serializer.save()
+            return Response(self.get_serializer(subscription).data, status=status.HTTP_201_CREATED)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class SubscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
+    permission_classes = [IsAdminUser]
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data = request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            print(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TrainerListCreateView(generics.ListCreateAPIView):
+    queryset = User.objects.filter(is_trainer=True)
+    serializer_class = serializers.TrainerSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.filter(is_trainer=True)
+    serializer_class = serializers.TrainerSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+# USER SIDE
+class UserTrainerListView(generics.ListAPIView):
+    queryset = User.objects.filter(is_trainer=True)
+    serializer_class = serializers.TrainerSerializer
+    permission_classes = [permissions.AllowAny]
+
+class UserSubscriptionListView(generics.ListAPIView):
+    queryset = Subscription.objects.all()
+    serializer_class = serializers.SubscriptionSerializer
+    permission_classes = [permissions.AllowAny] #Accessible all authentcaited user
