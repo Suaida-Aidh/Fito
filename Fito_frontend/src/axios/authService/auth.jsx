@@ -1,10 +1,10 @@
-import api from '../api/authInstance' //import instance
-import endpoints from '../urls/Endpoints' //import endpoints
+import api from '../api/authInstance' 
 import Cookies from 'js-cookie'
+import endpoints from '../urls/endpoints';
 
 export const login = async(email, password) =>{
     try{
-        const response = await api.post(endpoints.login, { //use the login endpoint from that file
+        const response = await api.post(endpoints.login, { 
             email,
             password
         });

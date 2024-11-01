@@ -39,13 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'main',
-
+    'django.contrib.sites',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
 
 ]
+SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -193,3 +194,4 @@ MEDIA_URL = 'media/'
 from pathlib import Path
 import os
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")

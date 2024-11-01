@@ -1,82 +1,116 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "../../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../redux/slices/authSlice'; // Update path as needed
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
+    const [passwordMatchError, setPasswordMatchError] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user, error } = useSelector(state => state.auth);
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-    });
+    const { isLoading, error } = useSelector(state => state.auth);
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
-    };
-
-    const handleSubmit = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
-        dispatch(registerUser(formData));
-    };
 
-    // Effect to handle navigation after registration
-    useEffect(() => {
-        if (user) {
-            // Navigate to login page after successful registration
-            navigate('/login'); // Change this path if your login route is different
+        if (password !== confirmPassword) {
+            setPasswordMatchError("Passwords do not match.");
+            return;
         }
-        if (error) {
-            // Optionally, you can handle the error here
-            console.error('Registration error:', error);
+
+        const result = await dispatch(registerUser({ username, email, password }));
+        
+        if (registerUser.fulfilled.match(result)) {
+            console.log('Registration Successful');
+            setEmailSent(true);
+            navigate('/login') 
+        } else {
+            
+            console.log('Registration Failed', result.error);
         }
-    }, [user, error, navigate]);
+    };
 
     return (
-        <div className="register-container">
-            <h2>Register</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="username">Username:</label>
-                    <input
-                        type="text"
-                        name="username"
-                        id="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <button type="submit">Register</button>
-                {error && <p className="error-message">{error.message || 'Registration failed'}</p>}
-            </form>
+        <div className="h-screen flex justify-center items-center bg-gray-100">
+            <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+                <h1 className="text-2xl font-bold text-center mb-6">Create your account 📝</h1>
+                
+                {emailSent ? (
+                    <p className="text-center text-green-600 mb-4">Please check your email to verify your account before logging in.</p>
+                ) : (
+                    <form onSubmit={handleRegister}>
+                        <div className="space-y-4">
+                            <div>
+                                <input 
+                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    type="text" 
+                                    placeholder="Username"
+                                    value={username} 
+                                    onChange={(e) => setUsername(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            <div>
+                                <input 
+                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    type="email" 
+                                    placeholder="Email"
+                                    value={email} 
+                                    onChange={(e) => setEmail(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            <div>
+                                <input 
+                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    type="password" 
+                                    placeholder="Password"
+                                    value={password} 
+                                    onChange={(e) => setPassword(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            <div>
+                                <input 
+                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    type="password" 
+                                    placeholder="Confirm Password"
+                                    value={confirmPassword} 
+                                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                                    required 
+                                />
+                            </div>
+                            {passwordMatchError && <p className="text-red-500 text-center">{passwordMatchError}</p>}
+                            
+                        </div>
+                        <div className="flex justify-center items-center mt-6">
+                            <button
+                                type="submit"
+                                className="w-full py-2 bg-[#bde800] text-white rounded-md hover:bg-[#879d15] transition duration-200"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Registering...' : 'Sign Up'}
+                            </button>
+                        </div>
+                    </form>
+                )}
+                
+                {error && <p className="text-red-500 text-center mt-4">{error.message || 'Email already used'}</p>}
+
+                <p className="text-center mt-4">
+                    Already have an account?{' '}
+                    <span
+                        className="text-[#bde800] cursor-pointer hover:underline"
+                        onClick={() => navigate('/login')}
+                    >
+                        Log in here
+                    </span>
+                </p>
+            </div>
         </div>
     );
 };

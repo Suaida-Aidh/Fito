@@ -27,7 +27,6 @@ export const registerUser = createAsyncThunk(
             const response = await register({ username, email, password });
             return response;
         } catch (error) {
-            // Extract the message and any relevant data from the error response
             const serializableError = {
                 message: error.response ? error.response.data.message || error.message : error.message,
                 status: error.response ? error.response.status : null,
@@ -46,6 +45,7 @@ const authSlice = createSlice({
         accessToken: null,
         refreshToken: null,
         isAdmin : false,
+        isTrainer : false,
         isLoading: false,
         error: null,
         
@@ -59,6 +59,7 @@ const authSlice = createSlice({
             state.accessToken = null;
             state.refreshToken = null; 
             state.isAdmin = false;
+            state.isTrainer = false
             Cookies.remove('access_token')
             Cookies.remove('refresh_token');
         },
@@ -78,6 +79,7 @@ const authSlice = createSlice({
                 state.refreshToken = action.payload.refresh_token;
                 state.user = action.payload.user;
                 state.isAdmin = action.payload.is_superuser || false;
+                state.isTrainer = action.payload.is_trainer || false;
     
                 Cookies.set('access_token', action.payload.access_token);
                 Cookies.set('refresh_token', action.payload.refresh_token);

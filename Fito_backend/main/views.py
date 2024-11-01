@@ -1,17 +1,21 @@
-from django.contrib.auth import get_user_model
-from rest_framework import status, generics, permissions
-from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from . import serializers
 from .models import *
+from .tokens import account_activation_token
+from django.core.mail import send_mail
+from django.contrib.auth import get_user_model
+from rest_framework import status, generics, permissions
+from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth.tokens import default_token_generator
-
+from rest_framework.generics import GenericAPIView
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
+from django.http import HttpResponse
 User = get_user_model()
-
 
 
 class UserRegisteration(GenericAPIView):
@@ -19,39 +23,73 @@ class UserRegisteration(GenericAPIView):
     serializer_class = serializers.UserRegisterationSerializer
 
     def post(self, request, *args, **kwargs):
-        
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        token = RefreshToken.for_user(user)
+
+        # Generate email verification token
+        token = account_activation_token.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        
+        email_subject = 'Activate Your Account'
+        email_body = render_to_string('activation_email.html', {
+            'user': user,
+            'domain': '127.0.0.1:8000',
+            'uidb64': uid,
+            'token': token,
+        })
+
+        send_mail(email_subject, email_body, settings.EMAIL_HOST_USER , [user.email])
+
         data = serializer.data
-        print(request.data)
-        data["tokens"] = {
-            "refresh": str(token),
-            "access": str(token.access_token)
-        }
+        data["message"] = "Please confirm your email address to complete the registration."
         return Response(data, status=status.HTTP_201_CREATED)
-    
+
+class TrainerRegistration(GenericAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = serializers.TrainerRegistrationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        token = account_activation_token.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        email_subject = 'Activate Your Trainer Account'
+        email_body = render_to_string('activation_email.html', {
+            'user': user,
+            'domain': '127.0.0.1:8000',
+            'uidb64': uid,
+            'token': token,
+        })
+
+        send_mail(email_subject, email_body, settings.EMAIL_HOST_USER, [user.email])
+
+        data = serializer.data
+        data["message"] = "Please confirm your email address to complete the registration."
+        return Response(data, status=status.HTTP_201_CREATED)
 
 
 
+class ActivateAccountView(GenericAPIView):
+    permission_classes = (AllowAny,)
 
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
+    def get(self, request, uidb64, token):
+        print('')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
 
-    if user and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return Response({"detail": "Account activated successfully"}, status=status.HTTP_200_OK)
-    else:
-        return Response({"detail": "Activation link is invalid"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            message = {"details": "Account is activated..."}
+            return HttpResponse("Activation success.You can login to your account now")
+        return HttpResponse("Activation Failed.")
 
 class UserLogin(GenericAPIView):
     def post(self, request):
@@ -72,7 +110,10 @@ class UserLogin(GenericAPIView):
             "access_token": str(access_token),
             "refresh_token": str(refresh_token),
             "is_superuser": user.is_superuser,
+            "is_trainer": user.is_trainer,
         })
+
+
 
 
 # SUNSCRIPTION VIEWS
@@ -105,23 +146,16 @@ class SubscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
             print(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class TrainerListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.filter(is_trainer=True)
-    serializer_class = serializers.TrainerSerializer
-    permission_classes = [permissions.IsAdminUser]
 
-class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.filter(is_trainer=True)
-    serializer_class = serializers.TrainerSerializer
-    permission_classes = [permissions.IsAdminUser]
 
 # USER SIDE
-class UserTrainerListView(generics.ListAPIView):
-    queryset = User.objects.filter(is_trainer=True)
-    serializer_class = serializers.TrainerSerializer
-    permission_classes = [permissions.AllowAny]
-
 class UserSubscriptionListView(generics.ListAPIView):
     queryset = Subscription.objects.all()
     serializer_class = serializers.SubscriptionSerializer
     permission_classes = [permissions.AllowAny] #Accessible all authentcaited user
+
+
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.CustomUserSerializer
+    permission_classes = [IsAdminUser]
