@@ -47,12 +47,17 @@ const Sidebar = () => {
                             Dashboard
                         </ListItem>
                     </Link>
-                    <ListItem className="py-2 hover:bg-blue-100 rounded-lg transition-colors">
-                        <ListItemPrefix className="mr-2">
-                            <UserGroupIcon className="h-5 w-5" />
-                        </ListItemPrefix>
-                        Users
-                    </ListItem>
+
+                   
+                    <Link to="/usersList">
+                        <ListItem className="py-2 hover:bg-blue-100 rounded-lg transition-colors">
+                            <ListItemPrefix className="mr-2">
+                                <UserGroupIcon className="h-5 w-5" />
+                            </ListItemPrefix>
+                            Users
+                        </ListItem>
+                    </Link>
+                    <Link to="/trainerMgmt" >
                     <ListItem className="py-2 hover:bg-blue-100 rounded-lg transition-colors">
                         <ListItemPrefix className="mr-2">
                             <FaDumbbell className="h-5 w-5" />
@@ -68,13 +73,14 @@ const Sidebar = () => {
                             />
                         </ListItemSuffix>
                     </ListItem>
+                    </Link>
                     <ListItem className="py-2 hover:bg-blue-100 rounded-lg transition-colors">
                         <ListItemPrefix className="mr-2">
                             <FontAwesomeIcon icon={faUserCheck} className="h-5 w-5 text-green-500" />
                         </ListItemPrefix>
                         Subscribed Users
                     </ListItem>
-                    <Link to="/adminSubscription">
+                    <Link to="/subscriptionMgmt">
                         <ListItem className="py-2 hover:bg-blue-100 rounded-lg transition-colors">
                             <ListItemPrefix className="mr-2">
                                 <ClipboardDocumentListIcon className="h-5 w-5" />

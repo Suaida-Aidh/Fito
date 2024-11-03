@@ -31,6 +31,7 @@ class User(AbstractUser):
     profile_img=models.ImageField(upload_to='profile_images/',blank=True,null=True)
     is_active=models.BooleanField(default=True)
     is_trainer = models.BooleanField(default=False)
+    position = models.CharField(max_length=255, blank=True, null=True)
 
 
     USERNAME_FIELD='email'

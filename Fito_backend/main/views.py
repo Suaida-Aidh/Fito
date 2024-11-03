@@ -17,7 +17,7 @@ from django.conf import settings
 from django.http import HttpResponse
 User = get_user_model()
 
-
+# Authentication
 class UserRegisteration(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = serializers.UserRegisterationSerializer
@@ -44,34 +44,6 @@ class UserRegisteration(GenericAPIView):
         data = serializer.data
         data["message"] = "Please confirm your email address to complete the registration."
         return Response(data, status=status.HTTP_201_CREATED)
-
-class TrainerRegistration(GenericAPIView):
-    permission_classes = (AllowAny,)
-    serializer_class = serializers.TrainerRegistrationSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        token = account_activation_token.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        email_subject = 'Activate Your Trainer Account'
-        email_body = render_to_string('activation_email.html', {
-            'user': user,
-            'domain': '127.0.0.1:8000',
-            'uidb64': uid,
-            'token': token,
-        })
-
-        send_mail(email_subject, email_body, settings.EMAIL_HOST_USER, [user.email])
-
-        data = serializer.data
-        data["message"] = "Please confirm your email address to complete the registration."
-        return Response(data, status=status.HTTP_201_CREATED)
-
-
 
 class ActivateAccountView(GenericAPIView):
     permission_classes = (AllowAny,)
@@ -113,12 +85,60 @@ class UserLogin(GenericAPIView):
             "is_trainer": user.is_trainer,
         })
 
+# TRAINER 
+class TrainerRegistration(GenericAPIView):
+    permission_classes = (IsAdminUser,)
+    serializer_class = serializers.TrainerRegistrationSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        token = account_activation_token.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        email_subject = 'Activate Your Trainer Account'
+        email_body = render_to_string('activation_email.html', {
+            'user': user,
+            'domain': '127.0.0.1:8000',
+            'uidb64': uid,
+            'token': token,
+        })
+
+        send_mail(email_subject, email_body, settings.EMAIL_HOST_USER, [user.email])
+
+        data = serializer.data
+        data["message"] = "Please confirm your email address to complete the registration."
+        return Response(data, status=status.HTTP_201_CREATED)
+
+class TrainerListView(generics.ListAPIView):
+    queryset = User.objects.filter(is_trainer=True)
+    serializer_class = serializers.CustomUserSerializer
+    permission_classes = [AllowAny,]  # Only accessible by admins
+
+class TrainerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.filter(is_trainer=True)
+    serializer_class = serializers.CustomUserSerializer
+    permission_classes = [IsAdminUser]  # Only accessible by admins
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({"message": "Trainer deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 
-# SUNSCRIPTION VIEWS
+# SUNSCRIPTIONS
 
-# ADMIN SIDE
+
 class SubscriptionCreateList(generics.ListCreateAPIView):
     queryset = Subscription.objects.all()
     serializer_class = serializers.SubscriptionSerializer
@@ -146,16 +166,16 @@ class SubscriptionDetailView(generics.RetrieveUpdateDestroyAPIView):
             print(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-# USER SIDE
 class UserSubscriptionListView(generics.ListAPIView):
     queryset = Subscription.objects.all()
     serializer_class = serializers.SubscriptionSerializer
-    permission_classes = [permissions.AllowAny] #Accessible all authentcaited user
+    permission_classes = [permissions.AllowAny] 
 
+
+# USERS
 
 class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_trainer=False, is_superuser=False)
     serializer_class = serializers.CustomUserSerializer
     permission_classes = [IsAdminUser]
+

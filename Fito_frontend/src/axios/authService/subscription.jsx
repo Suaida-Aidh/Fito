@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 import api from '../api/authInstance'; //  Axios instance
-import endpoints from '../urls/Endpoints'; 
+import endpoints from '../urls/endpoints'; 
 
 export const getSubscriptionsAdmin = async () => {
     try {
@@ -15,6 +15,7 @@ export const getSubscriptionsAdmin = async () => {
         throw error.response ? error.response.data : error;
     }
 };
+
 
 
 export const createSubscription = async (subscriptionData) => {

@@ -12,8 +12,14 @@ const endpoints = {
     deleteSubscription: (id) => `${BASE_URL}/main/admin/subscriptions/${id}/`,
 
     //TARINERS IN ADMIN AND USER
-    userTrainersList: `${BASE_URL}/main/trainersList/`
+    trainersList: `${BASE_URL}/main/list-trainers/`,
+    createTrainer: `${BASE_URL}/main/admin/create-trainer/`,
+    updateDeleteTrainer: (id) => `${BASE_URL}/main/admin/trainer/${id}/`,
+    
 
+
+
+    userList: `${BASE_URL}/main/users/list/`,
 
 }
 
