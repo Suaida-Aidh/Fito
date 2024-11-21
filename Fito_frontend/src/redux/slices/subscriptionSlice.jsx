@@ -7,7 +7,6 @@ import {
     getSubscriptionsUser,
 } from '../../axios/authService/subscription'; 
 
-
 export const fetchSubscriptions = createAsyncThunk('subscriptions/fetchSubscriptions', async () => {
     const data = await getSubscriptionsAdmin();
     return data;
@@ -27,7 +26,6 @@ export const removeSubscription = createAsyncThunk('subscriptions/removeSubscrip
     await deleteSubscription(id);
     return id; // Return the id to remove from state
 });
-
 
 export const fetchUserSubscriptions = createAsyncThunk('subscriptions/fetchUserSubscriptions', async () => {
     const data = await getSubscriptionsUser();  // Fetch user subscriptions
@@ -69,19 +67,8 @@ const subscriptionSlice = createSlice({
             .addCase(removeSubscription.fulfilled, (state, action) => {
                 state.subscriptions = state.subscriptions.filter((sub) => sub.id !== action.payload);
             })
-            
-            //USER 
-            .addCase(fetchUserSubscriptions.pending, (state) => {  // Pending state for user subscriptions
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchUserSubscriptions.fulfilled, (state, action) => {  // Fulfilled state for user subscriptions
-                state.loading = false;
+            .addCase(fetchUserSubscriptions.fulfilled, (state, action) => {
                 state.userSubscriptions = action.payload;
-            })
-            .addCase(fetchUserSubscriptions.rejected, (state, action) => {  // Rejected state for user subscriptions
-                state.loading = false;
-                state.error = action.error.message;
             });
     },
 });

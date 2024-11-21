@@ -1,35 +1,36 @@
-import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../../redux/slices/authSlice'; // Update path as needed
 import { useNavigate } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const Signup = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [emailSent, setEmailSent] = useState(false);
-    const [passwordMatchError, setPasswordMatchError] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { isLoading, error } = useSelector(state => state.auth);
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
+    const validationSchema = Yup.object({
+        username: Yup.string()
+            .min(3, 'Username must be at least 3 characters')
+            .required('Username is required'),
+        email: Yup.string()
+            .email('Invalid email address')
+            .required('Email is required'),
+        password: Yup.string()
+            .min(6, 'Password must be at least 6 characters')
+            .required('Password is required'),
+        confirmPassword: Yup.string()
+            .oneOf([Yup.ref('password'), null], 'Passwords must match')
+            .required('Confirm Password is required'),
+    });
 
-        if (password !== confirmPassword) {
-            setPasswordMatchError("Passwords do not match.");
-            return;
-        }
-
-        const result = await dispatch(registerUser({ username, email, password }));
+    const handleRegister = async (values) => {
+        const result = await dispatch(registerUser(values));
         
         if (registerUser.fulfilled.match(result)) {
             console.log('Registration Successful');
-            setEmailSent(true);
-            navigate('/login') 
+            navigate('/login');
         } else {
-            
             console.log('Registration Failed', result.error);
         }
     };
@@ -39,66 +40,85 @@ const Signup = () => {
             <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
                 <h1 className="text-2xl font-bold text-center mb-6">Create your account 📝</h1>
                 
-                {emailSent ? (
-                    <p className="text-center text-green-600 mb-4">Please check your email to verify your account before logging in.</p>
-                ) : (
-                    <form onSubmit={handleRegister}>
-                        <div className="space-y-4">
-                            <div>
-                                <input 
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
-                                    type="text" 
-                                    placeholder="Username"
-                                    value={username} 
-                                    onChange={(e) => setUsername(e.target.value)} 
-                                    required 
-                                />
+                <Formik
+                    initialValues={{
+                        username: '',
+                        email: '',
+                        password: '',
+                        confirmPassword: '',
+                    }}
+                    validationSchema={validationSchema}
+                    onSubmit={handleRegister}
+                >
+                    {({ isSubmitting }) => (
+                        <Form>
+                            <div className="space-y-4">
+                                <div>
+                                    <Field
+                                        name="username"
+                                        type="text"
+                                        placeholder="Username"
+                                        className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    />
+                                    <ErrorMessage
+                                        name="username"
+                                        component="p"
+                                        className="text-red-500 text-center"
+                                    />
+                                </div>
+                                <div>
+                                    <Field
+                                        name="email"
+                                        type="email"
+                                        placeholder="Email"
+                                        className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    />
+                                    <ErrorMessage
+                                        name="email"
+                                        component="p"
+                                        className="text-red-500 text-center"
+                                    />
+                                </div>
+                                <div>
+                                    <Field
+                                        name="password"
+                                        type="password"
+                                        placeholder="Password"
+                                        className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    />
+                                    <ErrorMessage
+                                        name="password"
+                                        component="p"
+                                        className="text-red-500 text-center"
+                                    />
+                                </div>
+                                <div>
+                                    <Field
+                                        name="confirmPassword"
+                                        type="password"
+                                        placeholder="Confirm Password"
+                                        className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
+                                    />
+                                    <ErrorMessage
+                                        name="confirmPassword"
+                                        component="p"
+                                        className="text-red-500 text-center"
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <input 
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
-                                    type="email" 
-                                    placeholder="Email"
-                                    value={email} 
-                                    onChange={(e) => setEmail(e.target.value)} 
-                                    required 
-                                />
+                            <div className="flex justify-center items-center mt-6">
+                                <button
+                                    type="submit"
+                                    className="w-full py-2 bg-[#bde800] text-white rounded-md hover:bg-[#879d15] transition duration-200"
+                                    disabled={isSubmitting || isLoading}
+                                >
+                                    {isLoading ? 'Registering...' : 'Sign Up'}
+                                </button>
                             </div>
-                            <div>
-                                <input 
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
-                                    type="password" 
-                                    placeholder="Password"
-                                    value={password} 
-                                    onChange={(e) => setPassword(e.target.value)} 
-                                    required 
-                                />
-                            </div>
-                            <div>
-                                <input 
-                                    className="w-full px-3 py-2 border rounded-md focus:outline-none border-gray-300"
-                                    type="password" 
-                                    placeholder="Confirm Password"
-                                    value={confirmPassword} 
-                                    onChange={(e) => setConfirmPassword(e.target.value)} 
-                                    required 
-                                />
-                            </div>
-                            {passwordMatchError && <p className="text-red-500 text-center">{passwordMatchError}</p>}
-                            
-                        </div>
-                        <div className="flex justify-center items-center mt-6">
-                            <button
-                                type="submit"
-                                className="w-full py-2 bg-[#bde800] text-white rounded-md hover:bg-[#879d15] transition duration-200"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Registering...' : 'Sign Up'}
-                            </button>
-                        </div>
-                    </form>
-                )}
-                
+                        </Form>
+                    )}
+                </Formik>
+
                 {error && <p className="text-red-500 text-center mt-4">{error.message || 'Email already used'}</p>}
 
                 <p className="text-center mt-4">

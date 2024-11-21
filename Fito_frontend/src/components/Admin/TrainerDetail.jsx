@@ -1,4 +1,3 @@
-// src/components/TrainerDetail.jsx
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeTrainer, editTrainer } from '../../redux/slices/trainerSlice'; // Adjust the path as necessary

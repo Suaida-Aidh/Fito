@@ -6,8 +6,6 @@ import {
     removeSubscription,
 } from '../../redux/slices/subscriptionSlice';
 import { useEffect, useState } from 'react';
-import Sidebar from '../Layout/Sidebar';
-import Header from '../Layout/Header';
 
 const SubscriptionMgmt = () => {
     const dispatch = useDispatch();
@@ -43,7 +41,8 @@ const SubscriptionMgmt = () => {
 
     const handleUpdateSubscription = () => {
         if (newSubscription.name && newSubscription.description && newSubscription.price && newSubscription.duration) {
-            dispatch(editSubscription({ id: editSubscriptionId, ...newSubscription }));
+            // Passing subscriptionData as part of the action payload
+            dispatch(editSubscription({ id: editSubscriptionId, subscriptionData: newSubscription }));
             setNewSubscription({ name: '', description: '', price: '', duration: '' });
             setEditMode(false);
             setEditSubscriptionId(null);
@@ -59,9 +58,7 @@ const SubscriptionMgmt = () => {
 
     return (
         <div className="flex">
-            <Sidebar />
             <div className="flex-1">
-                <Header />
                 <div className="w-full max-w-7xl mx-auto p-4">
                     <button onClick={() => { setIsModalOpen(true); setEditMode(false); }} className="bg-green-600 text-white rounded-md py-2 px-4 mb-6 hover:bg-green-700 transition duration-300">
                         Add Subscription

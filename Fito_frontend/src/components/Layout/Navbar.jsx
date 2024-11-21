@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import { AiOutlineClose, AiOutlineMenu } from 'react-icons/ai';
-import { FaAngleDown } from 'react-icons/fa';
+import { FaAngleDown, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import Logout from '../Auth/Logout';
-import { useSelector } from 'react-redux';
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);
   const [dropdown, setDropdown] = useState(false);
-  
-  // Accessing authentication state from Redux store
-  const { isAuthenticated } = useSelector((state) => state.auth);
 
   const handleNav = () => {
     setNav(!nav);
@@ -41,11 +36,11 @@ const Navbar = () => {
         </li>
         <li className='p-4'><Link to='/userSubscription' className='cursor-pointer'>Subscription</Link></li>
         <li className='p-4'><Link to='/Contact' className='cursor-pointer'>Contact</Link></li>
-        {isAuthenticated ? (
-          <li className='p-4 text-black'><Logout /></li> // Change to text-black
-        ) : (
-          <li className='p-4'><Link to='/login' className='cursor-pointer text-black'>Login</Link></li> // Ensure Login is also black
-        )}
+        <li className='p-4'>
+          <Link to='/userProfile' className='flex items-center cursor-pointer text-black'>
+            <FaUser size={20} />
+          </Link>
+        </li>
       </ul>
       <div onClick={handleNav} className='block md:hidden cursor-pointer'>
         {nav ? <AiOutlineClose size={20}/> : <AiOutlineMenu size={20} />}
@@ -58,18 +53,18 @@ const Navbar = () => {
           </div>
           {dropdown && (
             <ul className='absolute left-0 mt-2 w-[150px] bg-gray-800 shadow-lg z-10'>
-              <li className='p-2 hover:bg-gray-700'><Link to='/Trainers' className='cursor-pointer'>All Trainers</Link></li>
-              <li className='p-2 hover:bg-gray-700'><Link to='/personal-trainer' className='cursor-pointer'>Personal Trainer</Link></li>
+              <li className='p-2 hover:bg-gray-700'><Link to='/trainersList'>All Trainers</Link></li>
+              <li className='p-2 hover:bg-gray-700'><Link to='/personal-trainer'>Personal Trainer</Link></li>
             </ul>
           )}
         </li>
         <li className='p-4 border-b border-gray-600 text-white'><Link to='/Subscription' className='cursor-pointer'>Subscription</Link></li>
         <li className='p-4 text-white'><Link to='/Contact' className='cursor-pointer'>Contact</Link></li>
-        {isAuthenticated ? (
-          <li className='p-4 text-black'><Logout /></li> // Change to text-black
-        ) : (
-          <li className='p-4 text-white'><Link to='/login' className='cursor-pointer'>Login</Link></li>
-        )}
+        <li className='p-4 text-white'>
+          <Link to='/userProfile' className='flex items-center cursor-pointer'>
+            <FaUser size={20} />
+          </Link>
+        </li>
       </ul>
     </div>
   );

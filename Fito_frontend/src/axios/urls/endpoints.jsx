@@ -15,11 +15,12 @@ const endpoints = {
     trainersList: `${BASE_URL}/main/list-trainers/`,
     createTrainer: `${BASE_URL}/main/admin/create-trainer/`,
     updateDeleteTrainer: (id) => `${BASE_URL}/main/admin/trainer/${id}/`,
-    
+    trainerProfileUpdateView : (id) => `${BASE_URL}/main/trainer/profile/${id}/`,
 
 
 
     userList: `${BASE_URL}/main/users/list/`,
+    userProfile: `${BASE_URL}/main/user/profile/`,
 
 }
 

@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTrainers } from '../../redux/slices/trainerSlice';
-import Sidebar from '../Layout/Sidebar';
-import Header from '../Layout/Header';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import AddTrainer from './AddTrainer'; // Import AddTrainer component
 
 const TrainerMgmt = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { trainers, loading, error } = useSelector((state) => state.trainers);
     const [currentPage, setCurrentPage] = useState(1);
-    const trainersPerPage = 8; // Number of trainers per page (4 per row, 2 rows)
+    const [showAddTrainerModal, setShowAddTrainerModal] = useState(false);
+    const trainersPerPage = 8;
 
     useEffect(() => {
         dispatch(fetchTrainers());
@@ -21,7 +21,11 @@ const TrainerMgmt = () => {
     };
 
     const handleAddTrainerClick = () => {
-        navigate('/trainers/add');
+        setShowAddTrainerModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowAddTrainerModal(false);
     };
 
     const handlePageChange = (page) => {
@@ -37,16 +41,14 @@ const TrainerMgmt = () => {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="flex">
-            <Sidebar />
+        <div className="flex relative">
             <div className="flex-1">
-                <Header />
                 <div className="w-full max-w-7xl mx-auto p-4">
                     <div className="mt-6 flex justify-end">
                         <button
                             type="button"
                             onClick={handleAddTrainerClick}
-                            className="block rounded-md bg-black px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                            className="block rounded-md bg-black px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-gray-700"
                         >
                             Add Trainer
                         </button>
@@ -72,14 +74,6 @@ const TrainerMgmt = () => {
                                     <p className="text-sm text-gray-500 mb-4">
                                         Status: {trainer.is_active ? 'Active' : 'Inactive'}
                                     </p>
-                                    <div className="flex justify-end">
-                                        <a
-                                            href="#"
-                                            className="bg-black-600 text-white rounded-md py-2 px-4 hover:bg-blue-700 transition duration-300"
-                                        >
-                                            Edit
-                                        </a>
-                                    </div>
                                 </div>
                             ))
                         ) : (
@@ -87,7 +81,6 @@ const TrainerMgmt = () => {
                         )}
                     </div>
 
-                    {/* Pagination Controls */}
                     <div className="mt-6 flex justify-center">
                         {Array.from({ length: totalPages }, (_, i) => (
                             <button
@@ -103,6 +96,20 @@ const TrainerMgmt = () => {
                     </div>
                 </div>
             </div>
+
+            {showAddTrainerModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="relative bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                        <button
+                            onClick={handleCloseModal}
+                            className="absolute top-3 right-3 text-gray-700 font-bold text-xl"
+                        >
+                            &times;
+                        </button>
+                        <AddTrainer onClose={handleCloseModal} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

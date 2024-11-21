@@ -13,12 +13,14 @@ urlpatterns = [
     path('admin/subscriptions/<int:pk>/', views.SubscriptionDetailView.as_view(), name='subscription-detail'),
     path('user/subscriptions/', views.UserSubscriptionListView.as_view(), name='user-subscription-list'),
 
-    # user list
+    # user 
     path('users/list/', views.UserListView.as_view(), name='user-list'),
-
+    path('user/profile/', views.UserProfileView.as_view(), name='user-profile'),
+    
+    
     #trainers
     path('admin/create-trainer/', views.TrainerRegistration.as_view(), name='trainer_register'),
     path('list-trainers/', views.TrainerListView.as_view(), name='admin-list-trainers'),
     path('admin/trainer/<int:pk>/', views.TrainerDetailView.as_view(), name='admin-trainer-detail'),
-
+    path('trainer/profile/<int:pk>/', views.TrainerProfileUpdateView.as_view(), name='trainer-profile-update'),
 ]

@@ -7,13 +7,16 @@ import { login, register } from '../../axios/authService/auth'
 
 export const loginUser = createAsyncThunk(
     'auth/login',
-    async({email, password}, {rejectWithValue}) => {
-        try{
+    async ({ email, password }, { rejectWithValue }) => {
+        try {
             const response = await login(email, password);
             return response;
-
-        }catch (error){
-            return rejectWithValue(error);
+        } catch (error) {
+            // Check if the error response exists and get the message
+            if (error.response && error.response.data && error.response.data.detail){
+                return rejectWithValue(error.response.data.detail || "An error occurred");
+            }
+            return rejectWithValue("An error occurred");
         }
     }
 );
@@ -40,10 +43,10 @@ export const registerUser = createAsyncThunk(
 const authSlice = createSlice({
     name:'auth',
     initialState:{
-        isAuthenticated : false,
+        isAuthenticated : !!Cookies.get('access_token'),
         user: null,
-        accessToken: null,
-        refreshToken: null,
+        accessToken: Cookies.get('access_token') || null,
+        refreshToken: Cookies.get('refresh_token') || null,
         isAdmin : false,
         isTrainer : false,
         isLoading: false,

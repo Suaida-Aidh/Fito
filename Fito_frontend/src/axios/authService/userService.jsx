@@ -1,16 +1,20 @@
 import endpoints from "../urls/endpoints";
-import Cookies from 'js-cookie'
-import api from '../api/authInstance'
+import api from '../api/authInstance';
 
 export const getUsersAdmin = async () => {
     try {
-        const token = Cookies.get('access_token');
-        const response = await api.get(endpoints.userList, { 
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await api.get(endpoints.userList); 
+        // console.log(response.data)// No need for token in headers
         return response.data; 
+    } catch (error) {
+        throw error.response ? error.response.data : error;
+    }
+};
+
+export const getUserProfile = async () => {
+    try {
+        const response = await api.get(endpoints.userProfile); // No need for token in headers
+        return response.data;
     } catch (error) {
         throw error.response ? error.response.data : error;
     }

@@ -23,7 +23,9 @@ const UserSubscriptionList = () => {
             <div className='text-black'>
                 <div className='max-w-[800px] mt-[-96px] w-full h-screen mx-auto text-left flex flex-col justify-center relative -top-10 -mb-10'>
                     <h5 className='font-extrabold font-archive text-5xl mt-40 -ml-60'>
-                        YOUR SUBSCRIPTIONS
+                        START YOUR BODY <br />
+                        GOAL FROM CHOOSING <br />
+                        OUR PACKAGE.
                     </h5>
                     <p className='mt-5 -ml-60'>
                         Here are the plans you are currently subscribed to.

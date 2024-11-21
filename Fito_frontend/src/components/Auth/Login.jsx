@@ -20,14 +20,12 @@ const Login = () => {
         navigate('/', { replace: true });
       }
     }
-  }, [isAuthenticated, navigate, isAdmin, isTrainer]);
+  }, [isAuthenticated, isAdmin, isTrainer, navigate]); // Ensure navigate does not trigger endlessly
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     dispatch(loginUser({ email, password }));
   };
-
- 
 
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">
@@ -69,13 +67,13 @@ const Login = () => {
               {isLoading ? 'Logging in...' : 'Login'}
             </button>
           </div>
-          {error && <p className="text-red-500 text-center mt-4">{error}</p>}
+          {error && <p className="text-red-500 text-center mt-4">{"Not activated your account"}</p>}
         </form>
         <p className="text-center mt-4">
           Don't have an account?{' '}
           <span
             className="text-[#bde800] cursor-pointer hover:underline"
-            onClick={() => navigate('/signup')} // Navigate to the register page on click
+            onClick={() => navigate('/signup')}
           >
             Go to Register
           </span>
