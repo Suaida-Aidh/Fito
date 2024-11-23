@@ -5,9 +5,12 @@ import Navbar from '../Layout/Navbar';
 import Footer from '../Layout/Footer';
 import Trainers1 from './user_img/Trainers1.svg';
 import Price from './user_img/Price.svg';
+import { useNavigate } from 'react-router-dom';
+
 
 const UserSubscriptionList = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Initialize navigate
     const { userSubscriptions, loading, error } = useSelector((state) => state.subscriptions);
 
     useEffect(() => {
@@ -16,6 +19,10 @@ const UserSubscriptionList = () => {
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
+
+    const handleManagePlan = (subscription) => {
+        navigate('/checkout', { state: { subscription } });
+    };
 
     return (
         <>
@@ -52,7 +59,10 @@ const UserSubscriptionList = () => {
                                 <li>✔ Access to fitness app</li>
                                 {/* Add other features as necessary */}
                             </ul>
-                            <button className='bg-[#bde800] text-white font-bold py-2 px-4 rounded w-full'>
+                            <button
+                                onClick={() => handleManagePlan(subscription)} // Handle button click
+                                className='bg-[#bde800] text-white font-bold py-2 px-4 rounded w-full'
+                            >
                                 Manage Plan
                             </button>
                         </div>

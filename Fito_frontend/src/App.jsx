@@ -26,6 +26,9 @@ import ProtectedRoute from './components/Root/Auth/ProtectedRoute'
 
 import AccountActivation from './components/Auth/AccountActivation'
 import Loader from './components/Utils/Loader'
+import SubscriptionCheckout from './components/User/SubscriptionCheckout'
+import Subscriptions from './components/User/Subscriptions'
+
 function App() {
 
   return (
@@ -48,6 +51,11 @@ function App() {
         <Route path="/trainersList" element={<TrainersList />} />
         <Route path="/userSubscription" element={<UserSubscriptionList />} />
         <Route path="/userProfile" element={<UserProfile />} />
+        <Route path="/checkout" element={<SubscriptionCheckout />} />
+
+        <Route path="/payment" element={<Subscriptions />} />
+
+
 
         <Route path="/trainerDashboard" element={<TrainerPrivateRoute><TrainerDashboard /></TrainerPrivateRoute>} />
         <Route path="/trainerProfile" element={<TrainerPrivateRoute><TrainerProfile /></TrainerPrivateRoute>} />

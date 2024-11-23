@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'main',
+    'subscription',
+    
     'django.contrib.sites',
     'corsheaders',
     'rest_framework',
@@ -171,6 +173,10 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
 ]
 
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173',
+]
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -195,3 +201,9 @@ from pathlib import Path
 import os
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+
+# PAYMENT
+
+RAZORPAY_KEY_ID =' rzp_test_hSooQBlSD8UGAI'
+RAZORPAY_SECRET_KEY = 'GnTSFjpV50AmZUyS26OKDXW7'

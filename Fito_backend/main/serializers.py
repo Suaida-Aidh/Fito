@@ -126,4 +126,4 @@ class TrainerRegistrationSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
-        fields = ['id', 'name', 'description', 'price', 'duration', 'created_at', 'updated_at']
+        fields = '__all__'

@@ -22,7 +22,8 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-     path('main/', include('main.urls')),
+    path('main/', include('main.urls')),
+    path('razorpay/', include('subscription.urls')),
 
     path('token/', jwt_views.TokenObtainPairView.as_view(), name ="token_obtain_pair"),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name="token_refresh"),
